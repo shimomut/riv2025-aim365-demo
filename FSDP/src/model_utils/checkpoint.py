@@ -103,7 +103,7 @@ def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub
 
 def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type, device):
 
-    sm_checkpoint_config = get_sm_checkpoint_config()
+    sm_checkpoint_config = get_sm_checkpoint_config(save_s3=True)
 
     with FSDP.state_dict_type(
             model,
