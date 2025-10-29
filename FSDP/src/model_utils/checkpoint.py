@@ -45,7 +45,7 @@ def get_sm_checkpoint_config(save_s3=False):
         # Amazon S3 storage location, required for SageMakerTieredStorageReader for read fallbacks
         # Required for SageMakerTieredStorageWriter when save_to_s3 is True
         # FIXME: parameterize
-        s3_tier_base_path="s3://sagemaker-checkpoints-842413447717-us-east-2/checkpoints"
+        s3_tier_base_path="s3://sagemaker-checkpoints-535002850097-us-west-1/checkpoints"
     )
 
     if save_s3:
