@@ -22,6 +22,150 @@ from model_utils.train_utils import get_logger
 
 logger = get_logger()
 
+
+# for MTC
+from amzn_sagemaker_checkpointing.config.sagemaker_checkpoint_config import SageMakerCheckpointConfig
+from amzn_sagemaker_checkpointing.checkpointing.filesystem.filesystem import SageMakerTieredStorageWriter, SageMakerTieredStorageReader
+
+# for MTC
+mtc_future = None
+
+# for MTC
+def get_sm_checkpoint_config(save_s3=False):
+
+    config = SageMakerCheckpointConfig(
+        # Unique ID for your training job 
+        # Allowed characters in ID include: alphanumeric, hyphens, and underscores
+        # FIXME: parameterize
+        namespace="abcd1234",
+
+        # Number of distributed processes/available GPUs
+        world_size=dist.get_world_size(), 
+
+        # Amazon S3 storage location, required for SageMakerTieredStorageReader for read fallbacks
+        # Required for SageMakerTieredStorageWriter when save_to_s3 is True
+        # FIXME: parameterize
+        s3_tier_base_path="s3://sagemaker-checkpoints-842413447717-us-east-2/checkpoints"
+    )
+
+    if save_s3:
+        config.save_to_s3=True
+
+    return config
+
+
+# for MTC
+def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub_dir, save_in_memory, save_s3, training_step):
+
+    torch.cuda.empty_cache()
+
+    sm_checkpoint_config = get_sm_checkpoint_config(save_s3=save_s3)
+
+    # save_dir = os.path.join(root_dir, sub_dir)
+    # if dist.get_rank() == 0:
+    #     logger.info("Writing checkpoint to {0}.".format(save_dir))
+
+    with FSDP.state_dict_type(
+            model,
+            StateDictType.SHARDED_STATE_DICT):
+
+        state_dict = {
+            "model": model.state_dict(),
+            "optim": FSDP.optim_state_dict(model, optimizer),
+            "scheduler": scheduler.state_dict(),
+            "total_steps": user_content["total_steps"],
+            "start_batch_index": user_content["start_batch_index"],
+        }
+
+        # Create storage writer for current step
+        sm_storage_writer = SageMakerTieredStorageWriter(
+            checkpoint_config=checkpoint_config,
+            step=training_step
+        )
+
+        # wait for previous checkpoint to get completed
+        if mtc_future is not None:
+            exc = future.exception()
+            if exc:
+                print(f"Failure in saving previous checkpoint:{str(exc)}")
+                #Handle failures as required
+            else:
+                result = future.result()
+                #Process results from save, if required
+        
+        print(f"Starting async checkpoint save")
+
+        # Async save checkpoint using PyTorch DCP
+        mtc_future = dist_cp.async_save(state_dict=state_dict, storage_writer=sm_storage_writer)
+
+    dist.barrier()
+
+
+def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type, device):
+
+    sm_checkpoint_config = get_sm_checkpoint_config()
+
+    with FSDP.state_dict_type(
+            model,
+            StateDictType.SHARDED_STATE_DICT,
+        ):
+
+        state_dict = {
+            "model": model.state_dict(),
+            "scheduler": scheduler.state_dict(),
+            "total_steps": 0,
+            "start_batch_index": 0,
+            # cannot load the optimizer state_dict together with the model state_dict
+        }
+
+        # Load latest checkpoint
+        sm_storage_reader = SageMakerTieredStorageReader(checkpoint_config=sm_checkpoint_config)
+
+        dist_cp.load_state_dict(
+            state_dict=state_dict,
+            storage_reader=sm_storage_reader,
+        )
+
+        model.load_state_dict(state_dict["model"])
+        scheduler.load_state_dict(state_dict["scheduler"])
+
+        if dist.get_rank() == 0:
+            logger.info("Loaded model state from disk")
+            logger.info("Loading optimizer state from disk")
+
+        optim_state = load_sharded_optimizer_state_dict(
+            model_state_dict=state_dict["model"],
+            optimizer_key="optim",
+            storage_reader=sm_storage_reader,
+        )
+        if dist.get_rank() == 0:
+            logger.info("Loaded and sharded optimizer state from disk")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            # UserWarning to replace all_gather_base with all_gather_into_tensor floods the logs
+            flattened_osd = FSDP.optim_state_dict_to_load(
+                model, optimizer, optim_state["optim"]
+            )
+
+        if dist.get_rank() == 0:
+            logger.info("Converted optimizer state dict for FSDP")
+        optimizer.load_state_dict(flattened_osd)
+    
+    dist.barrier()
+    
+    if dist.get_rank() == 0:
+        logger.info("Checkpoint loaded from %s.", last_checkpoint)
+    
+    return (
+        model,
+        optimizer,
+        scheduler,
+        state_dict["total_steps"],
+        state_dict["start_batch_index"],
+    )
+
+
+
 def save_checkpoint(model, optimizer, scheduler, user_content, root_dir, sub_dir):
     torch.cuda.empty_cache()
 

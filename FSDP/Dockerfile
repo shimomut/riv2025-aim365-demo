@@ -9,4 +9,12 @@ COPY src/ /fsdp/
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r /fsdp/requirements.txt
 RUN pip install hyperpod-elastic-agent
 
+
+# Install the pre-requisites
+RUN pip install boto3 botocore tenacity s3torchconnector
+
+# Install the Managed Tiered Checkpointing library
+RUN pip install amzn-sagemaker-checkpointing
+
+
 WORKDIR /fsdp

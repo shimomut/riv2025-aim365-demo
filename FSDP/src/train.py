@@ -36,11 +36,19 @@ from model_utils.train_utils import (get_model_config,
                                    get_learning_rate_scheduler,
                                    create_streaming_dataloader)
 from model_utils.checkpoint import save_checkpoint, load_checkpoint
+from model_utils.checkpoint import save_checkpoint_mtc, load_checkpoint_mtc
 from model_utils.arguments import parse_args
 
 
 import logging
 import sys
+
+
+# for MTC
+use_mtc = True
+in_memory_checkpointing_freq = 10
+s3_checkpointing_freq = 50
+
 
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout)
 
@@ -126,24 +134,57 @@ def train(
                             batch_idx,
                             val_loss,
                         )
-            if args.checkpoint_dir and not total_steps % args.checkpoint_freq:
-                user_content = {
-                    "cli_args": args.__dict__,
-                    "num_params": num_params,
-                    "total_steps": total_steps,
-                    "model_config": model_config,
-                    "start_batch_index": batch_idx + 1,
-                }
-                sub_dir = f"{args.model_type}-{total_steps}steps"
 
-                save_checkpoint(
-                    model,
-                    optimizer,
-                    lr_scheduler,
-                    user_content,
-                    args.checkpoint_dir,
-                    sub_dir,
-                )
+            # for MTC
+            if use_mtc:
+                
+                save_in_memory = total_steps % in_memory_checkpointing_freq == 0
+                save_s3 = total_steps % s3_checkpointing_freq == 0
+
+                if save_in_memory or save_s3:
+
+                    user_content = {
+                        "cli_args": args.__dict__,
+                        "num_params": num_params,
+                        "total_steps": total_steps,
+                        "model_config": model_config,
+                        "start_batch_index": batch_idx + 1,
+                    }
+
+                    sub_dir = f"{args.model_type}-{total_steps}steps"
+
+                    save_checkpoint_mtc(
+                        model,
+                        optimizer,
+                        lr_scheduler,
+                        user_content,
+                        args.checkpoint_dir,
+                        sub_dir,
+                        save_in_memory,
+                        save_s3,
+                        total_steps,
+                    )
+
+            else:
+                if args.checkpoint_dir and not total_steps % args.checkpoint_freq:
+                    user_content = {
+                        "cli_args": args.__dict__,
+                        "num_params": num_params,
+                        "total_steps": total_steps,
+                        "model_config": model_config,
+                        "start_batch_index": batch_idx + 1,
+                    }
+                    sub_dir = f"{args.model_type}-{total_steps}steps"
+
+                    save_checkpoint(
+                        model,
+                        optimizer,
+                        lr_scheduler,
+                        user_content,
+                        args.checkpoint_dir,
+                        sub_dir,
+                    )
+
             if total_steps >= args.max_steps:
                 break
             
@@ -243,18 +284,36 @@ def main(args):
     lr_scheduler = get_learning_rate_scheduler(optimizer, args)
 
     if args.resume_from_checkpoint:
-        (
-            model,
-            optimizer,
-            lr_scheduler,
-            total_steps,
-            start_batch_index,
-        ) = load_checkpoint(model, 
-                            optimizer, 
-                            lr_scheduler, 
-                            args.resume_from_checkpoint, 
-                            args.model_type,
-                            device)
+
+        if use_mtc:
+            (
+                model,
+                optimizer,
+                lr_scheduler,
+                total_steps,
+                start_batch_index,
+            ) = load_checkpoint_mtc(
+                    model, 
+                    optimizer, 
+                    lr_scheduler, 
+                    args.resume_from_checkpoint, 
+                    args.model_type,
+                    device)
+
+        else:
+            (
+                model,
+                optimizer,
+                lr_scheduler,
+                total_steps,
+                start_batch_index,
+            ) = load_checkpoint(
+                    model, 
+                    optimizer, 
+                    lr_scheduler, 
+                    args.resume_from_checkpoint, 
+                    args.model_type,
+                    device)
     else:
         total_steps = 0
         start_batch_index = 0
