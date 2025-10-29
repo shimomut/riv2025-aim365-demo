@@ -60,6 +60,9 @@ spec:
               labelSelector:
                 matchLabels:
                   job-name: llama3-1-8b-fsdp-hpto
+
+          serviceAccountName: riv2025-aim365-demo-service-account
+
           containers:
             - name: pytorch
               image: ${IMAGE_URI}
