@@ -19,6 +19,12 @@ create-pod-identity-assoc:
 		--namespace default \
 		--service-account riv2025-aim365-demo-service-account
 
+build:
+	docker build -t ${REGISTRY}fsdp:pytorch2.5.1 ./FSDP
+
+push:
+	bash tools/push.sh
+
 apply:
 	kubectl apply -f FSDP/kubernetes/fsdp-hpto.yaml
 
