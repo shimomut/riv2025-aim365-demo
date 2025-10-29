@@ -1,0 +1,53 @@
+{
+    "ClusterName": "k8-demo-1",
+    "InstanceGroups": [
+        {
+            "InstanceCount": 8,
+            "InstanceGroupName": "worker1",
+            "InstanceType": "ml.g5.8xlarge",
+            "LifeCycleConfig": {
+                "SourceS3Uri": "s3://sagemaker-k8-demo-1-27d77433-bucket",
+                "OnCreate": "on_create.sh"
+            },
+            "ExecutionRole": "arn:aws:iam::842413447717:role/sagemaker-k8-demo-1-27d77433ExecRole",
+            "ThreadsPerCore": 1,
+            "InstanceStorageConfigs": [
+                {
+                    "EbsVolumeConfig": {
+                        "VolumeSizeInGB": 500
+                    }
+                }
+            ],
+            "OverrideVpcConfig": {
+                "SecurityGroupIds": [
+                    "sg-0817d383d7276a600"
+                ],
+                "Subnets": [
+                    "subnet-0b0e3bc93a6867dac"
+                ]
+            }
+        }
+    ],
+    "VpcConfig": {
+        "SecurityGroupIds": [
+            "sg-0817d383d7276a600"
+        ],
+        "Subnets": [
+            "subnet-0e2fb69e9c8391fb6",
+            "subnet-0b0e3bc93a6867dac",
+            "subnet-09167f540bfb1c621"
+        ]
+    },
+    "Orchestrator": {
+        "Eks": {
+            "ClusterArn": "arn:aws:eks:us-east-2:842413447717:cluster/sagemaker-k8-demo-1-27d77433-eks"
+        }
+    },
+    
+    "NodeRecovery": "Automatic",
+
+    "TieredStorageConfig": { 
+        "Mode": "Enable",
+        "InstanceMemoryAllocationPercentage": 50
+    }
+}
