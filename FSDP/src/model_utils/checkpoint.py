@@ -99,8 +99,6 @@ def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub
         # Async save checkpoint using PyTorch DCP
         Globals.mtc_future = dist_cp.async_save(state_dict=state_dict, storage_writer=sm_storage_writer)
 
-    dist.barrier()
-
 
 def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type, device):
 
