@@ -20,15 +20,15 @@ build-x:
 push:
 	bash tools/push.sh
 
-apply:
+run:
 	kubectl apply -f FSDP/kubernetes/fsdp-hpto.yaml
 
-delete:
+stop:
 	kubectl delete -f FSDP/kubernetes/fsdp-hpto.yaml
 
 list-pods:
 	kubectl get pods -A | grep llama
 
-logs:
-	stern llama | grep -v "200 OK"
+watch:
+	stern llama3-1-8b-fsdp-hpto-pods-0
 

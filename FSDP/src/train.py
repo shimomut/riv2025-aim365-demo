@@ -47,7 +47,7 @@ import sys
 # for MTC
 use_mtc = True
 in_memory_checkpointing_freq = 10
-s3_checkpointing_freq = 50
+s3_checkpointing_freq = 20
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout)
@@ -190,7 +190,7 @@ def train(
             
 
 def main(args):
-    dist.init_process_group()
+    dist.init_process_group("cpu:gloo,cuda:nccl")
     global_rank = dist.get_rank()
     device = global_rank % torch.cuda.device_count()
     world_size = dist.get_world_size()

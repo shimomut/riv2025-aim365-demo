@@ -28,7 +28,8 @@ from amzn_sagemaker_checkpointing.config.sagemaker_checkpoint_config import Sage
 from amzn_sagemaker_checkpointing.checkpointing.filesystem.filesystem import SageMakerTieredStorageWriter, SageMakerTieredStorageReader
 
 # for MTC
-mtc_future = None
+class Globals:
+    mtc_future = None
 
 # for MTC
 def get_sm_checkpoint_config(save_s3=False):
@@ -79,29 +80,38 @@ def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub
 
         # Create storage writer for current step
         sm_storage_writer = SageMakerTieredStorageWriter(
-            checkpoint_config=checkpoint_config,
+            checkpoint_config=sm_checkpoint_config,
             step=training_step
         )
 
         # wait for previous checkpoint to get completed
-        if mtc_future is not None:
-            exc = future.exception()
+        if  Globals.mtc_future is not None:
+            exc = Globals.mtc_future.exception()
             if exc:
                 print(f"Failure in saving previous checkpoint:{str(exc)}")
                 #Handle failures as required
             else:
-                result = future.result()
+                result = Globals.mtc_future.result()
                 #Process results from save, if required
         
-        print(f"Starting async checkpoint save")
+        print(f"Starting async checkpoint save", flush=True)
 
         # Async save checkpoint using PyTorch DCP
-        mtc_future = dist_cp.async_save(state_dict=state_dict, storage_writer=sm_storage_writer)
+        Globals.mtc_future = dist_cp.async_save(state_dict=state_dict, storage_writer=sm_storage_writer)
 
     dist.barrier()
 
 
 def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type, device):
+
+    print("Returning null checkpoint for testing", flush=True)
+    return(
+        model,
+        optimizer,
+        scheduler,
+        0,
+        0,
+    )
 
     sm_checkpoint_config = get_sm_checkpoint_config(save_s3=True)
 
