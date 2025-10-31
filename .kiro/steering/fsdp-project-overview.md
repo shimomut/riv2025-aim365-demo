@@ -18,10 +18,30 @@ This project provides a comprehensive FSDP (Fully Sharded Data Parallel) trainin
 FSDP/
 ├── src/                    # Core training code
 │   ├── train.py           # Main training script
+│   ├── requirements.txt   # Python dependencies
 │   └── model_utils/       # Utility modules
+│       ├── arguments.py   # Command-line argument parsing
+│       ├── checkpoint.py  # Checkpointing functionality
+│       ├── train_utils.py # Training utilities
+│       └── concat_dataset.py # Dataset utilities
 ├── kubernetes/            # Kubernetes deployment manifests
-├── slurm/                # Slurm job scripts
-└── models/               # Model configuration files
+│   ├── *.yaml            # Model-specific training configurations
+│   └── templates/        # Configuration templates
+├── Dockerfile            # Container image definition
+└── README.md            # FSDP module documentation
+
+tools/
+├── dataset/              # Dataset utilities
+│   ├── download_c4.py   # C4 dataset download script
+│   └── requirements.txt # Dataset tool dependencies
+├── internal/            # Internal environment scripts
+├── cluster.json         # Cluster configuration
+├── policy.json         # IAM policy configuration
+├── push.sh             # Container push script
+└── service-account.yaml # Kubernetes service account
+
+data/                    # Dataset storage (empty by default)
+logs/                   # Training logs
 ```
 
 ## Supported Models
@@ -35,8 +55,8 @@ FSDP/
 ## Deployment Platforms
 
 1. **Kubernetes with HyperPod Training Operator**
-2. **Slurm with SageMaker HyperPod**
-3. **Amazon EKS**
+2. **Amazon EKS**
+3. **Standard Kubernetes clusters**
 
 ## Core Features
 
@@ -46,3 +66,5 @@ FSDP/
 - Activation checkpointing for memory optimization
 - Streaming dataset support (HuggingFace datasets)
 - EFA (Elastic Fabric Adapter) support for high-performance networking
+- Dataset download utilities (C4 dataset support)
+- Container-based deployment with Docker

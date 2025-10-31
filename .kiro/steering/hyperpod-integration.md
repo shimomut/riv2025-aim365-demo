@@ -70,17 +70,8 @@ if use_mtc:
 
 ## Auto-Resume Functionality
 
-### Slurm Integration
-For HyperPod Slurm clusters, enable auto-resume:
-
-```bash
-AUTO_RESUME=""
-if [ -d "/opt/sagemaker_cluster" ]; then
-    echo "Detected Hyperpod cluster.. enabling --auto-resume=1"
-    AUTO_RESUME="--auto-resume=1"
-fi
-srun ${AUTO_RESUME} -l "${ARGS[@]}" ${TORCHRUN} "${TORCHRUN_ARGS[@]}" $TRAIN_SCRIPT "${TRAINING_ARGS[@]}"
-```
+### Kubernetes Integration
+For HyperPod Kubernetes clusters, use the HyperPodPyTorchJob CRD with auto-resume capabilities built into the training operator.
 
 ### Checkpoint Resume Logic
 ```python

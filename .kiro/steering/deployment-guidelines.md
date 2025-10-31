@@ -12,11 +12,21 @@
 ### Container Image Management
 ```bash
 # Build container image
-docker build -f Dockerfile -t ${REGISTRY}fsdp:pytorch2.7.1 .
+docker build -f FSDP/Dockerfile -t ${REGISTRY}fsdp:pytorch2.7.1 .
 
 # Push to ECR
 aws ecr get-login-password | docker login --username AWS --password-stdin $REGISTRY
 docker image push ${REGISTRY}fsdp:pytorch2.7.1
+```
+
+### Dataset Preparation
+```bash
+# Download C4 dataset
+cd tools/dataset
+pip install -r requirements.txt
+python download_c4.py
+
+# The dataset will be cached for training use
 ```
 
 ### Environment Variables
@@ -34,35 +44,36 @@ Required environment variables for Kubernetes deployment:
 - Set appropriate resource requests and limits
 - Mount shared storage for checkpoints
 
-## Slurm Deployment
+## Local Development and Testing
 
 ### Prerequisites
-- Slurm cluster with GPU nodes
-- Shared FSx for Lustre filesystem
-- Python virtual environment or container runtime
-- EFA drivers installed
+- Python virtual environment (`.venv/` directory)
+- GPU-enabled system for testing
+- Docker for container builds
 - HuggingFace access token
 
 ### Environment Setup
 ```bash
-# Create virtual environment
-./create_venv.sh
+# Activate virtual environment
+source .venv/bin/activate
 
-# Or use container
-enroot import -o pytorch-fsdp.sqsh dockerd://fsdp:pytorch2.7.1
+# Install dependencies
+pip install -r FSDP/src/requirements.txt
+
+# For dataset utilities
+pip install -r tools/dataset/requirements.txt
 ```
 
-### Job Submission
+### Local Testing
 ```bash
-# Submit training job
-sbatch llama3_1_8b-training.sbatch
-```
+# Test training script locally
+cd FSDP/src
+python train.py --help
 
-### SBATCH Configuration
-- Set appropriate node count and GPU allocation
-- Configure EFA environment variables
-- Set up shared filesystem mounts
-- Include auto-resume for HyperPod clusters
+# Download test datasets
+cd ../../tools/dataset
+python download_c4.py
+```
 
 ## Configuration Templates
 
@@ -102,9 +113,8 @@ Each model requires specific parameters:
 kubectl get pytorchjob
 kubectl logs -f <pod-name>
 
-# Slurm
-squeue
-tail -f logs/<job-name>_<job-id>.out
+# Local logs
+tail -f logs/*.log
 ```
 
 ### Performance Metrics

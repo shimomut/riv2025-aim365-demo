@@ -5,9 +5,9 @@
 ### Directory Structure
 - `FSDP/src/`: Core training implementation
 - `FSDP/kubernetes/`: Kubernetes deployment configurations
-- `FSDP/slurm/`: Slurm job submission scripts
-- `FSDP/models/`: Model parameter configurations
 - `tools/`: Utility scripts and configurations
+  - `tools/dataset/`: Dataset download and processing utilities
+  - `tools/internal/`: Internal environment configuration scripts
 
 ### Module Structure
 - `model_utils/`: Reusable utility functions
@@ -50,6 +50,12 @@
 - Provide sensible defaults for all parameters
 - Group related parameters logically
 - Include parameter validation and bounds checking
+
+### Dataset Management
+- Use the `tools/dataset/` utilities for dataset preparation
+- Support streaming datasets from HuggingFace Hub
+- Implement proper dataset caching strategies
+- Include dataset validation and preprocessing steps
 
 ## Distributed Training Standards
 
