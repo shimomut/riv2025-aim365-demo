@@ -3,4 +3,5 @@
 .venv
 
 /logs/*.log
+/data
 /tools/internal
