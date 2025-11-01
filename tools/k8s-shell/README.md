@@ -64,11 +64,11 @@ envsubst < tools/k8s-shell/shell-pod.yaml | kubectl apply -f -
 ```bash
 # Connect to the shell
 make shell
-# Or: kubectl exec -it fsdp-shell -- bash
+# Or: kubectl exec -it shell -- bash
 
 # Clean up
 make delete-shell
-# Or: kubectl delete pod fsdp-shell
+# Or: kubectl delete pod shell
 ```
 
 ## Available Make Targets

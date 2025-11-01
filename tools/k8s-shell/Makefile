@@ -22,9 +22,9 @@ deploy-shell-default:
 	SHELL_IMAGE=ubuntu:22.04 envsubst < shell-pod.yaml | kubectl apply -f -
 
 shell:
-	kubectl exec -it fsdp-shell -- bash
+	kubectl exec -it shell -- bash
 
 delete-shell:
-	kubectl delete pod fsdp-shell
+	kubectl delete pod shell
 
 all: create-ecr-repo build login tag push
