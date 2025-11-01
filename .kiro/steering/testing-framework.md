@@ -201,18 +201,28 @@ kubectl top pods -l job-name=llama3-1-8b-fsdp-hpto
 
 ## Documentation References
 
+### User Documentation (`doc/`)
 - **`doc/TESTING_GUIDE.md`**: Comprehensive testing procedures
 - **`doc/TESTING_QUICK_REFERENCE.md`**: Command reference card
-- **`doc/VERIFICATION_RESULTS.md`**: Verified test results and evidence
 - **`doc/TESTING_SUMMARY.md`**: Framework overview and components
-- **`doc/TOOLS_REORGANIZATION.md`**: Tools organization and structure
+- **`doc/HYPERPOD_TESTING_GUIDE.md`**: Detailed HyperPod-specific testing
+- **`doc/LOCAL_DATASET_SETUP.md`**: Dataset preparation instructions
+
+### Historical Documentation (`tmp/`)
+The `tmp/` directory contains temporary documentation created during development to explain refactoring, bug fixes, and project changes. These are archived for historical reference:
+
+- **`tmp/VERIFICATION_RESULTS.md`**: Verified test results and evidence (archived)
+- **`tmp/TOOLS_REORGANIZATION.md`**: Tools organization and structure (archived)
+- **`tmp/CLEANUP_SUMMARY.md`**: Development process documentation (archived)
+- **`tmp/ORGANIZATION_SUMMARY.md`**: Documentation reorganization summary (archived)
+- **`tmp/STEERING_UPDATES_SUMMARY.md`**: Steering document updates summary (archived)
 
 ## Support and Troubleshooting
 
 For issues with the testing framework:
 1. Check `doc/TESTING_GUIDE.md` for detailed procedures
-2. Review `doc/VERIFICATION_RESULTS.md` for expected behavior
-3. Use `make debug-describe` and `make debug-events` for diagnostics
-4. Refer to the troubleshooting guide for common issues and solutions
+2. Use `make debug-describe` and `make debug-events` for diagnostics
+3. Refer to the troubleshooting guide for common issues and solutions
+4. Review `tmp/VERIFICATION_RESULTS.md` for historical test evidence (if needed)
 
 The testing framework provides a reliable, production-ready approach to validating FSDP training on HyperPod clusters.

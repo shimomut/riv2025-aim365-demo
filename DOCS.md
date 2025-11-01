@@ -7,7 +7,7 @@ All documentation has been moved to the [`doc/`](doc/) directory for better orga
 - **[Documentation Index](doc/README.md)** - Complete documentation overview
 - **[Testing Guide](doc/TESTING_GUIDE.md)** - Start here for testing procedures
 - **[Quick Reference](doc/TESTING_QUICK_REFERENCE.md)** - Command cheat sheet
-- **[Verification Results](doc/VERIFICATION_RESULTS.md)** - Proof the system works
+- **[HyperPod Testing Guide](doc/HYPERPOD_TESTING_GUIDE.md)** - Detailed HyperPod testing
 
 ## Quick Start
 

@@ -14,7 +14,10 @@
 - `doc/`: Comprehensive documentation
   - `doc/README.md`: Documentation index
   - `doc/TESTING_GUIDE.md`: Testing procedures and workflows
-  - `doc/VERIFICATION_RESULTS.md`: Verified test results
+  - `doc/TESTING_SUMMARY.md`: Framework overview and components
+- `tmp/`: Temporary and historical documentation
+  - `tmp/VERIFICATION_RESULTS.md`: Verified test results (archived)
+  - `tmp/CLEANUP_SUMMARY.md`: Development process documentation
 - `Makefile`: Standardized commands for testing and deployment
 
 ### Module Structure

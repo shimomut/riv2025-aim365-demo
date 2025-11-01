@@ -46,8 +46,13 @@ tools/
 doc/                     # Comprehensive documentation
 ├── README.md           # Documentation index
 ├── TESTING_GUIDE.md    # Testing procedures
-├── VERIFICATION_RESULTS.md # Verified test results
+├── TESTING_SUMMARY.md  # Framework overview
 └── [other guides...]   # Additional documentation
+
+tmp/                     # Temporary and historical documentation
+├── README.md           # Archive explanation
+├── VERIFICATION_RESULTS.md # Verified test results (archived)
+└── [other summaries...] # Development process documentation
 
 data/                    # Dataset storage (empty by default)
 logs/                   # Training logs

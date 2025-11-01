@@ -6,7 +6,7 @@ This directory contains comprehensive documentation for the FSDP training applic
 
 1. **[Testing Guide](TESTING_GUIDE.md)** - Start here for basic testing procedures
 2. **[Quick Reference](TESTING_QUICK_REFERENCE.md)** - Essential commands cheat sheet
-3. **[Verification Results](VERIFICATION_RESULTS.md)** - Proof that the system works
+3. **[HyperPod Testing Guide](HYPERPOD_TESTING_GUIDE.md)** - Detailed HyperPod-specific testing
 
 ## Documentation Index
 
@@ -15,7 +15,6 @@ This directory contains comprehensive documentation for the FSDP training applic
 - **[Testing Summary](TESTING_SUMMARY.md)** - Overview of the testing framework components
 - **[Testing Quick Reference](TESTING_QUICK_REFERENCE.md)** - Command reference card
 - **[HyperPod Testing Guide](HYPERPOD_TESTING_GUIDE.md)** - Detailed HyperPod-specific testing
-- **[Verification Results](VERIFICATION_RESULTS.md)** - Complete verification test results
 
 ### Setup Documentation  
 - **[Local Dataset Setup](LOCAL_DATASET_SETUP.md)** - Dataset preparation instructions
@@ -90,5 +89,5 @@ Run `make help` to see all available commands:
 
 For issues or questions:
 1. Check the [Testing Guide](TESTING_GUIDE.md) for common solutions
-2. Review [Verification Results](VERIFICATION_RESULTS.md) for expected behavior
-3. Use the [Quick Reference](TESTING_QUICK_REFERENCE.md) for command help
+2. Use the [Quick Reference](TESTING_QUICK_REFERENCE.md) for command help
+3. Refer to the [HyperPod Testing Guide](HYPERPOD_TESTING_GUIDE.md) for detailed procedures

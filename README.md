@@ -30,7 +30,7 @@ make stop
 
 - **[Testing Guide](doc/TESTING_GUIDE.md)** - Comprehensive testing procedures
 - **[Quick Reference](doc/TESTING_QUICK_REFERENCE.md)** - Essential commands
-- **[Verification Results](doc/VERIFICATION_RESULTS.md)** - Proof of functionality
+- **[HyperPod Testing Guide](doc/HYPERPOD_TESTING_GUIDE.md)** - Detailed HyperPod testing
 - **[Documentation Index](doc/README.md)** - Full documentation overview
 
 ## Key Features
