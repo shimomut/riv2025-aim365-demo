@@ -1,5 +1,63 @@
 # Troubleshooting Guide
 
+## Testing Framework for Troubleshooting
+
+### Quick Diagnostics
+Use the comprehensive testing framework to quickly identify issues:
+
+```bash
+# 1. Validate testing framework
+make validate-framework
+
+# 2. Check cluster health
+make validate-setup
+
+# 3. Check current job status
+make check-job
+
+# 4. Get detailed job information
+make test-status
+
+# 5. View recent logs
+make logs-all
+
+# 6. Debug job details
+make debug-describe
+make debug-events
+```
+
+### Systematic Troubleshooting Workflow
+```bash
+# Step 1: Framework validation
+make validate-framework
+# ✅ Ensures testing tools are working
+
+# Step 2: Cluster connectivity
+make validate-setup  
+# ✅ Verifies cluster access, nodes, storage
+
+# Step 3: Quick test
+make test-quick
+# ✅ End-to-end validation in 1 minute
+
+# Step 4: If issues found, get details
+make debug-describe  # Job configuration details
+make debug-events   # Recent cluster events
+make logs-all      # Training logs from all pods
+```
+
+### Real-time Monitoring
+```bash
+# Monitor job status
+make monitor-pods    # Watch pod status updates
+
+# Follow training logs
+make logs-follow     # Real-time log streaming
+
+# Check resource usage
+kubectl top pods -l job-name=llama3-1-8b-fsdp-hpto
+```
+
 ## Common Issues and Solutions
 
 ### NCCL and Communication Issues
@@ -308,6 +366,28 @@ enroot list
 
 ## Debugging Tools and Commands
 
+### HyperPod Testing Framework Debugging
+```bash
+# Comprehensive job status and diagnostics
+make test-status        # Get detailed job status JSON
+make debug-describe     # Detailed job configuration
+make debug-events      # Recent cluster events
+make logs-all          # Logs from all pods
+
+# Real-time monitoring
+make logs-follow       # Stream logs in real-time
+make monitor-pods      # Watch pod status updates
+
+# Manual pod debugging
+kubectl get pods -l job-name=llama3-1-8b-fsdp-hpto
+kubectl describe pod <pod-name>
+kubectl exec -it <pod-name> -- /bin/bash
+
+# Resource monitoring
+kubectl top pods -l job-name=llama3-1-8b-fsdp-hpto
+kubectl top nodes
+```
+
 ### NCCL Debugging
 ```bash
 # Enable comprehensive NCCL logging
@@ -343,19 +423,36 @@ print(prof.key_averages().table(sort_by="cuda_time_total"))
 
 ### Log Analysis
 ```bash
-# Monitor training logs in real-time
-tail -f logs/training.log
+# Using testing framework (recommended)
+make logs-all          # Get recent logs from all pods
+make logs-follow       # Real-time log streaming
 
-# Search for specific errors
-grep -i "error\|exception\|failed" logs/training.log
+# Manual log analysis
+kubectl logs -l job-name=llama3-1-8b-fsdp-hpto --tail=100
+kubectl logs <pod-name> | grep -i "error\|exception\|failed"
+kubectl logs <pod-name> | grep "NCCL.*bandwidth"
 
-# Analyze NCCL performance
-grep "NCCL" logs/training.log | grep "bandwidth"
+# Search for specific patterns
+python3 tools/test_hyperpod_cluster.py --action logs | grep "Loss:"
 ```
 
 ## Prevention Strategies
 
 ### Pre-deployment Checks
+Use the testing framework for systematic validation:
+
+```bash
+# 1. Framework validation
+make validate-framework
+
+# 2. Cluster health check
+make validate-setup
+
+# 3. Quick end-to-end test
+make test-quick
+```
+
+Manual checks:
 1. Verify all environment variables are set
 2. Test network connectivity between nodes
 3. Validate checkpoint directory permissions

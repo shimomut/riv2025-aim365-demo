@@ -44,15 +44,57 @@ Required environment variables for Kubernetes deployment:
 - Set appropriate resource requests and limits
 - Mount shared storage for checkpoints
 
-## Local Development and Testing
+## HyperPod Testing Framework
 
 ### Prerequisites
-- Python virtual environment (`.venv/` directory)
-- GPU-enabled system for testing
-- Docker for container builds
-- HuggingFace access token
+- SageMaker HyperPod cluster with GPU nodes
+- kubectl configured for cluster access
+- AWS CLI configured with appropriate permissions
+- Container images built and pushed to ECR
 
-### Environment Setup
+### Testing Framework Validation
+```bash
+# Validate testing framework setup
+make validate-framework
+
+# Check cluster connectivity and health
+make validate-setup
+
+# Verify all components are ready
+make check-cluster
+```
+
+### End-to-End Testing
+```bash
+# Quick 1-minute validation test
+make test-quick
+
+# Comprehensive 5-minute test with monitoring
+make test-cluster
+
+# Performance testing
+make perf-test
+```
+
+### Manual Deployment and Monitoring
+```bash
+# Deploy training job
+make run
+
+# Monitor job status
+make check-job
+
+# Follow training logs in real-time
+make logs-follow
+
+# Check pod status
+make monitor-pods
+
+# Clean up resources
+make stop
+```
+
+### Local Development Setup
 ```bash
 # Activate virtual environment
 source .venv/bin/activate
@@ -62,16 +104,9 @@ pip install -r FSDP/src/requirements.txt
 
 # For dataset utilities
 pip install -r tools/dataset/requirements.txt
-```
-
-### Local Testing
-```bash
-# Test training script locally
-cd FSDP/src
-python train.py --help
 
 # Download test datasets
-cd ../../tools/dataset
+cd tools/dataset
 python download_c4.py
 ```
 
@@ -109,12 +144,20 @@ Each model requires specific parameters:
 
 ### Job Monitoring
 ```bash
-# Kubernetes
-kubectl get pytorchjob
+# Using make commands (recommended)
+make check-job          # Job and pod status
+make logs-follow        # Real-time log streaming
+make logs-all          # Recent logs from all pods
+make monitor-pods      # Watch pod status updates
+
+# Direct kubectl commands
+kubectl get hyperpodpytorchjob
+kubectl get pods -l job-name=llama3-1-8b-fsdp-hpto
 kubectl logs -f <pod-name>
 
-# Local logs
-tail -f logs/*.log
+# Testing framework status
+make test-status       # Get comprehensive job status
+python3 tools/test_hyperpod_cluster.py --action status
 ```
 
 ### Performance Metrics

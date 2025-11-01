@@ -31,17 +31,27 @@ FSDP/
 └── README.md            # FSDP module documentation
 
 tools/
+├── test_hyperpod_cluster.py # Comprehensive HyperPod testing framework
+├── validate_test_setup.py   # Testing framework validation
 ├── dataset/              # Dataset utilities
 │   ├── download_c4.py   # C4 dataset download script
 │   └── requirements.txt # Dataset tool dependencies
 ├── internal/            # Internal environment scripts
+├── k8s-shell/           # Kubernetes shell utilities
 ├── cluster.json         # Cluster configuration
 ├── policy.json         # IAM policy configuration
 ├── push.sh             # Container push script
 └── service-account.yaml # Kubernetes service account
 
+doc/                     # Comprehensive documentation
+├── README.md           # Documentation index
+├── TESTING_GUIDE.md    # Testing procedures
+├── VERIFICATION_RESULTS.md # Verified test results
+└── [other guides...]   # Additional documentation
+
 data/                    # Dataset storage (empty by default)
 logs/                   # Training logs
+Makefile                # Testing and deployment commands
 ```
 
 ## Supported Models
@@ -68,3 +78,27 @@ logs/                   # Training logs
 - EFA (Elastic Fabric Adapter) support for high-performance networking
 - Dataset download utilities (C4 dataset support)
 - Container-based deployment with Docker
+- **Comprehensive Testing Framework**: Verified HyperPod cluster testing
+- **One-Command Operations**: `make run`, `make stop`, `make test-quick`
+- **Automated Validation**: Framework and cluster health checks
+- **Real-time Monitoring**: Training progress and resource monitoring
+
+## Testing and Validation
+
+The project includes a comprehensive testing framework that has been verified on actual HyperPod clusters:
+
+### Quick Start Commands
+```bash
+make validate-framework  # Validate testing framework
+make validate-setup     # Check cluster connectivity
+make test-quick        # 1-minute end-to-end test
+make run              # Deploy training job
+make logs-follow      # Monitor training progress
+make stop            # Clean up resources
+```
+
+### Testing Framework Components
+- **`tools/test_hyperpod_cluster.py`**: Comprehensive cluster testing automation
+- **`tools/validate_test_setup.py`**: Framework validation and prerequisites check
+- **Makefile**: Standardized commands for all operations
+- **Documentation**: Complete guides in `doc/` directory
