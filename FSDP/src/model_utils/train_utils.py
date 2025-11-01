@@ -11,9 +11,11 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 import tqdm
 import logging
+import glob
+import json
 from torch.distributed.fsdp import BackwardPrefetch, ShardingStrategy
 from transformers import AutoTokenizer
-from datasets import load_dataset
+from datasets import load_dataset, IterableDataset
 
 from model_utils.concat_dataset import ConcatTokensDataset
 
@@ -506,7 +508,69 @@ def create_streaming_dataloader(dataset,
                       split=None):
     print(f"dataset={dataset}, name={name}")
     tokenizer = AutoTokenizer.from_pretrained(tokenizer,legacy=False)
-    data = load_dataset(dataset, name=name, streaming=True, split=split).shuffle(42+global_rank)
+    
+    # Check if dataset is a local path (starts with / or ./)
+    if dataset.startswith('/') or dataset.startswith('./'):
+        # Load local JSONL files
+        print(f"Loading local dataset from: {dataset}")
+        
+        if not os.path.exists(dataset):
+            raise FileNotFoundError(f"Local dataset directory not found: {dataset}")
+        
+        # Find all JSONL files in the directory
+        if split == 'train':
+            pattern = os.path.join(dataset, '*train*.jsonl')
+        elif split == 'validation':
+            pattern = os.path.join(dataset, '*validation*.jsonl')
+        else:
+            # Default to all JSONL files
+            pattern = os.path.join(dataset, '*.jsonl')
+        
+        jsonl_files = glob.glob(pattern)
+        if not jsonl_files:
+            # Fallback to all JSONL files if no split-specific files found
+            jsonl_files = glob.glob(os.path.join(dataset, '*.jsonl'))
+        
+        if not jsonl_files:
+            raise FileNotFoundError(f"No JSONL files found in {dataset}")
+        
+        print(f"Found {len(jsonl_files)} JSONL files for split '{split}': {[os.path.basename(f) for f in jsonl_files]}")
+        
+        # Create a generator that yields from all JSONL files
+        def jsonl_generator():
+            total_samples = 0
+            for file_path in jsonl_files:
+                file_samples = 0
+                print(f"Loading data from: {os.path.basename(file_path)}")
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        for line_num, line in enumerate(f, 1):
+                            try:
+                                line = line.strip()
+                                if line:  # Skip empty lines
+                                    data = json.loads(line)
+                                    # Ensure the data has a 'text' field
+                                    if 'text' in data:
+                                        yield data
+                                        file_samples += 1
+                                        total_samples += 1
+                                    else:
+                                        print(f"Warning: Line {line_num} in {os.path.basename(file_path)} missing 'text' field")
+                            except json.JSONDecodeError as e:
+                                print(f"Warning: JSON decode error at line {line_num} in {os.path.basename(file_path)}: {e}")
+                                continue
+                    print(f"Loaded {file_samples} samples from {os.path.basename(file_path)}")
+                except Exception as e:
+                    print(f"Error reading file {file_path}: {e}")
+                    continue
+            print(f"Total samples loaded: {total_samples}")
+        
+        # Convert generator to HuggingFace IterableDataset
+        data = IterableDataset.from_generator(jsonl_generator).shuffle(42+global_rank)
+    else:
+        # Use HuggingFace datasets for remote datasets
+        data = load_dataset(dataset, name=name, streaming=True, split=split).shuffle(42+global_rank)
+    
     train_concat_dataset = ConcatTokensDataset(data, tokenizer, max_context_width, True)
     train_dataloader = DataLoader(train_concat_dataset,
                                        batch_size=batch_size,

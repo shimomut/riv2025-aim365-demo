@@ -318,13 +318,22 @@ def main(args):
         total_steps = 0
         start_batch_index = 0
     
-    train_dataloader = create_streaming_dataloader(args.dataset, 
+    # Use local dataset path if provided, otherwise use remote dataset
+    dataset_path = args.local_dataset_path if args.local_dataset_path else args.dataset
+    
+    if global_rank == 0:
+        if args.local_dataset_path:
+            logger.info(f"Using local dataset from: {args.local_dataset_path}")
+        else:
+            logger.info(f"Using remote dataset: {args.dataset} (config: {args.dataset_config_name})")
+    
+    train_dataloader = create_streaming_dataloader(dataset_path, 
                                                    args.tokenizer, 
                                                    name=args.dataset_config_name, 
                                                    batch_size=args.train_batch_size, 
                                                    split='train')
     
-    val_dataloader = create_streaming_dataloader(args.dataset, 
+    val_dataloader = create_streaming_dataloader(dataset_path, 
                                                   args.tokenizer, 
                                                   name=args.dataset_config_name, 
                                                   batch_size=args.train_batch_size, 
