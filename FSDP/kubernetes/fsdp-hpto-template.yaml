@@ -34,6 +34,9 @@ spec:
             - name: local
               hostPath:
                 path: /mnt/k8s-disks/0
+            - name: fsx-pv
+              persistentVolumeClaim:
+                claimName: fsx-claim
           affinity:
             podAntiAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -123,10 +126,10 @@ spec:
                 - '--checkpoint_freq=50'
                 - '--validation_freq=25'
                 - '--max_steps=1000'
-                - '--checkpoint_dir=./checkpoints'
+                - '--checkpoint_dir=/fsx/checkpoints'
                 - '--dataset=allenai/c4'
                 - '--dataset_config_name=en'
-                - '--resume_from_checkpoint=./checkpoints'
+                - '--resume_from_checkpoint=/fsx/checkpoints'
                 - '--train_batch_size=1'
                 - '--val_batch_size=1'
                 - '--sharding_strategy=full'
@@ -136,3 +139,5 @@ spec:
                   mountPath: /dev/shm
                 - name: local
                   mountPath: /local
+                - name: fsx-pv
+                  mountPath: /fsx
