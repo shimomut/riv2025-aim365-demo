@@ -2,7 +2,31 @@
 
 This directory contains a YAML configuration and Dockerfile for an interactive shell pod to help with debugging and development.
 
-## Building the Shell Image
+## Quick Start with Make Commands
+
+Set your AWS account and region, then use the Makefile for easy management:
+
+```bash
+# Set environment variables
+export ACCOUNT=123456789012
+export REGION=us-west-2
+
+# Build and push custom image to ECR
+make all
+
+# Deploy shell pod with custom image
+make deploy-shell
+
+# Connect to the shell
+make shell
+
+# Clean up when done
+make delete-shell
+```
+
+## Manual Usage
+
+### Building the Shell Image
 
 Build a custom image with additional tools (Python, AWS CLI, kubectl):
 
@@ -15,36 +39,50 @@ docker tag shell-tools:latest your-registry/shell-tools:latest
 docker push your-registry/shell-tools:latest
 ```
 
-## Shell Pod (`shell-pod.yaml`)
-
-A pod for debugging and testing with pre-installed development tools.
+### Shell Pod Deployment
 
 **Usage with default Ubuntu image:**
 ```bash
 # Deploy the pod
+make deploy-shell-default
+
+# Or manually:
 kubectl apply -f tools/k8s-shell/shell-pod.yaml
-
-# Connect to the shell
-kubectl exec -it fsdp-shell -- bash
-
-# Clean up
-kubectl delete pod fsdp-shell
 ```
 
 **Usage with custom shell image:**
 ```bash
-# Set your custom image
+# Deploy with custom ECR image
+make deploy-shell
+
+# Or manually:
 export SHELL_IMAGE=your-registry/shell-tools:latest
-
-# Deploy the pod
 envsubst < tools/k8s-shell/shell-pod.yaml | kubectl apply -f -
+```
 
+**Connect and clean up:**
+```bash
 # Connect to the shell
-kubectl exec -it fsdp-shell -- bash
+make shell
+# Or: kubectl exec -it fsdp-shell -- bash
 
 # Clean up
-kubectl delete pod fsdp-shell
+make delete-shell
+# Or: kubectl delete pod fsdp-shell
 ```
+
+## Available Make Targets
+
+- `make create-ecr-repo` - Create ECR repository
+- `make build` - Build Docker image locally
+- `make login` - Login to ECR
+- `make tag` - Tag image for ECR
+- `make push` - Push image to ECR
+- `make all` - Complete build and push workflow
+- `make deploy-shell` - Deploy pod with custom ECR image
+- `make deploy-shell-default` - Deploy pod with default Ubuntu image
+- `make shell` - Connect to running pod
+- `make delete-shell` - Remove the pod
 
 ## Common Use Cases
 
