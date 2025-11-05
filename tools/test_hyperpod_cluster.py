@@ -46,6 +46,16 @@ class HyperPodTester:
     def check_hyperpod_operator(self) -> bool:
         """Verify HyperPod Training Operator is running."""
         print("🔍 Checking HyperPod Training Operator...")
+        # Check aws-hyperpod namespace first
+        success, output = self.run_kubectl_command([
+            "get", "pods", "-n", "aws-hyperpod", 
+            "-l", "app.kubernetes.io/name=hp-training-operator"
+        ])
+        if success and "Running" in output:
+            print("✅ HyperPod Training Operator is running")
+            return True
+        
+        # Fallback to kubeflow namespace
         success, output = self.run_kubectl_command([
             "get", "pods", "-n", "kubeflow", 
             "-l", "app=training-operator"
