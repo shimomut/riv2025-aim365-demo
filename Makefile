@@ -21,16 +21,16 @@ push:
 	bash tools/push.sh
 
 run:
-	export PATH=/usr/local/bin/:$$PATH && kubectl apply -f FSDP/kubernetes/fsdp-hpto.yaml
+	kubectl apply -f FSDP/kubernetes/fsdp-hpto.yaml
 
 stop:
-	export PATH=/usr/local/bin/:$$PATH && kubectl delete -f FSDP/kubernetes/fsdp-hpto.yaml
+	kubectl delete -f FSDP/kubernetes/fsdp-hpto.yaml
 
 list-pods:
-	export PATH=/usr/local/bin/:$$PATH && kubectl get pods -A | grep llama
+	kubectl get pods -A | grep llama
 
 watch:
-	export PATH=/usr/local/bin/:$$PATH && stern llama3-1-8b-fsdp-hpto-pods-0
+	stern llama3-1-8b-fsdp-hpto-pods-0
 
 # Testing Commands
 test-cluster:
@@ -51,53 +51,53 @@ test-cleanup:
 # Health Checks
 check-cluster:
 	@echo "🔍 Checking cluster health..."
-	export PATH=/usr/local/bin/:$$PATH && kubectl cluster-info
+	kubectl cluster-info
 	@echo "\n📊 Node status:"
-	export PATH=/usr/local/bin/:$$PATH && kubectl get nodes -o wide
+	kubectl get nodes -o wide
 	@echo "\n🎯 GPU nodes:"
-	export PATH=/usr/local/bin/:$$PATH && kubectl get nodes -l sagemaker.amazonaws.com/compute-type -o wide
+	kubectl get nodes -l sagemaker.amazonaws.com/compute-type -o wide
 	@echo "\n💾 Storage claims:"
-	export PATH=/usr/local/bin/:$$PATH && kubectl get pvc
+	kubectl get pvc
 	@echo "\n🔧 HyperPod operator:"
-	export PATH=/usr/local/bin/:$$PATH && kubectl get pods -n kubeflow -l app=training-operator
+	kubectl get pods -n kubeflow -l app=training-operator
 
 check-job:
 	@echo "📊 Job Status:"
-	export PATH=/usr/local/bin/:$$PATH && kubectl get hyperpodpytorchjob
+	kubectl get hyperpodpytorchjob
 	@echo "\n🏃 Pod Status:"
-	export PATH=/usr/local/bin/:$$PATH && kubectl get pods -l job-name=llama3-1-8b-fsdp-hpto -o wide
+	kubectl get pods -l job-name=llama3-1-8b-fsdp-hpto -o wide
 	@echo "\n📋 Recent Events:"
-	export PATH=/usr/local/bin/:$$PATH && kubectl get events --sort-by=.metadata.creationTimestamp | tail -10
+	kubectl get events --sort-by=.metadata.creationTimestamp | tail -10
 
 validate-setup:
 	@echo "✅ Validating HyperPod setup..."
 	@echo "1. Checking cluster connectivity..."
-	@export PATH=/usr/local/bin/:$$PATH && kubectl cluster-info > /dev/null && echo "   ✅ Cluster accessible" || echo "   ❌ Cluster not accessible"
+	@kubectl cluster-info > /dev/null && echo "   ✅ Cluster accessible" || echo "   ❌ Cluster not accessible"
 	@echo "2. Checking HyperPod operator..."
-	@export PATH=/usr/local/bin/:$$PATH && kubectl get pods -n kubeflow -l app=training-operator | grep -q Running && echo "   ✅ HyperPod operator running" || echo "   ❌ HyperPod operator not running"
+	@kubectl get pods -n kubeflow -l app=training-operator | grep -q Running && echo "   ✅ HyperPod operator running" || echo "   ❌ HyperPod operator not running"
 	@echo "3. Checking GPU nodes..."
-	@export PATH=/usr/local/bin/:$$PATH && kubectl get nodes -l sagemaker.amazonaws.com/compute-type | grep -q Ready && echo "   ✅ GPU nodes available" || echo "   ❌ No GPU nodes ready"
+	@kubectl get nodes -l sagemaker.amazonaws.com/compute-type | grep -q Ready && echo "   ✅ GPU nodes available" || echo "   ❌ No GPU nodes ready"
 	@echo "4. Checking storage..."
-	@export PATH=/usr/local/bin/:$$PATH && kubectl get pvc fsx-claim | grep -q Bound && echo "   ✅ FSx storage bound" || echo "   ❌ FSx storage not bound"
+	@kubectl get pvc fsx-claim | grep -q Bound && echo "   ✅ FSx storage bound" || echo "   ❌ FSx storage not bound"
 	@echo "5. Checking service account..."
-	@export PATH=/usr/local/bin/:$$PATH && kubectl get serviceaccount riv2025-aim365-demo-service-account > /dev/null && echo "   ✅ Service account exists" || echo "   ❌ Service account missing"
+	@kubectl get serviceaccount riv2025-aim365-demo-service-account > /dev/null && echo "   ✅ Service account exists" || echo "   ❌ Service account missing"
 
 # Monitoring
 monitor-pods:
 	watch -n 5 'kubectl get pods -l job-name=llama3-1-8b-fsdp-hpto -o wide'
 
 logs-follow:
-	export PATH=/usr/local/bin/:$$PATH && kubectl logs -f -l job-name=llama3-1-8b-fsdp-hpto
+	kubectl logs -f -l job-name=llama3-1-8b-fsdp-hpto
 
 logs-all:
-	export PATH=/usr/local/bin/:$$PATH && kubectl logs -l job-name=llama3-1-8b-fsdp-hpto --tail=100
+	kubectl logs -l job-name=llama3-1-8b-fsdp-hpto --tail=100
 
 # Debug
 debug-describe:
-	export PATH=/usr/local/bin/:$$PATH && kubectl describe hyperpodpytorchjob llama3-1-8b-fsdp-hpto
+	kubectl describe hyperpodpytorchjob llama3-1-8b-fsdp-hpto
 
 debug-events:
-	export PATH=/usr/local/bin/:$$PATH && kubectl get events --field-selector involvedObject.name=llama3-1-8b-fsdp-hpto --sort-by=.metadata.creationTimestamp
+	kubectl get events --field-selector involvedObject.name=llama3-1-8b-fsdp-hpto --sort-by=.metadata.creationTimestamp
 
 # Performance Testing
 perf-test:
