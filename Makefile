@@ -20,11 +20,17 @@ build-x:
 push:
 	bash tools/push.sh
 
-run:
-	kubectl apply -f FSDP/kubernetes/fsdp-hpto.yaml
+run-g5:
+	kubectl apply -f FSDP/kubernetes/fsdp-hpto-g5.yaml
 
-stop:
-	kubectl delete -f FSDP/kubernetes/fsdp-hpto.yaml
+stop-g5:
+	kubectl delete -f FSDP/kubernetes/fsdp-hpto-g5.yaml
+
+run-p5:
+	kubectl apply -f FSDP/kubernetes/fsdp-hpto-p5.yaml
+
+stop-p5:
+	kubectl delete -f FSDP/kubernetes/fsdp-hpto-p5.yaml
 
 list-pods:
 	kubectl get pods -A | grep llama
