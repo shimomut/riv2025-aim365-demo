@@ -163,6 +163,8 @@ def train(
                         save_in_memory,
                         save_s3,
                         total_steps,
+                        s3_tier_base_path=args.s3_tier_base_path,
+                        mtc_namespace=args.mtc_namespace,
                     )
 
             else:
@@ -298,7 +300,9 @@ def main(args):
                     lr_scheduler, 
                     args.resume_from_checkpoint, 
                     args.model_type,
-                    device)
+                    device,
+                    s3_tier_base_path=args.s3_tier_base_path,
+                    mtc_namespace=args.mtc_namespace)
 
         else:
             (

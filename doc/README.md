@@ -19,6 +19,9 @@ This directory contains comprehensive documentation for the FSDP training applic
 ### Setup Documentation  
 - **[Local Dataset Setup](LOCAL_DATASET_SETUP.md)** - Dataset preparation instructions
 
+### Configuration Documentation
+- **[MTC Parameterization Guide](MTC_PARAMETERIZATION_GUIDE.md)** - Managed Tiered Checkpointing configuration
+
 ## Getting Started
 
 ### 1. Validate Your Environment

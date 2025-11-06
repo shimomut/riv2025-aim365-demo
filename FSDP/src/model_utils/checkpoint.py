@@ -32,23 +32,42 @@ class Globals:
     mtc_future = None
 
 # for MTC
-def get_sm_checkpoint_config(save_s3=False):
+def get_sm_checkpoint_config(save_s3=False, s3_tier_base_path=None, mtc_namespace=None):
+    """
+    Create SageMaker checkpoint configuration with parameterized values.
+    
+    Args:
+        save_s3 (bool): Whether to save to S3
+        s3_tier_base_path (str): S3 base path for checkpoints
+        mtc_namespace (str): Unique namespace for the training job
+    
+    Returns:
+        SageMakerCheckpointConfig: Configured checkpoint config
+    """
+    # Use default values if not provided
+    if s3_tier_base_path is None:
+        s3_tier_base_path = "s3://sagemaker-checkpoints-842413447717-us-east-2/checkpoints"
+        if dist.get_rank() == 0:
+            logger.warning(f"Using default S3 path: {s3_tier_base_path}. "
+                          "Consider setting --s3_tier_base_path for production use.")
+    
+    if mtc_namespace is None:
+        mtc_namespace = "default-training-job"
+        if dist.get_rank() == 0:
+            logger.warning(f"Using default MTC namespace: {mtc_namespace}. "
+                          "Consider setting --mtc_namespace for production use.")
 
     config = SageMakerCheckpointConfig(
         # Unique ID for your training job 
         # Allowed characters in ID include: alphanumeric, hyphens, and underscores
-        # FIXME: parameterize
-        namespace="abcd1234",
+        namespace=mtc_namespace,
 
         # Number of distributed processes/available GPUs
         world_size=dist.get_world_size(), 
 
         # Amazon S3 storage location, required for SageMakerTieredStorageReader for read fallbacks
         # Required for SageMakerTieredStorageWriter when save_to_s3 is True
-        # FIXME: parameterize
-
-        #s3_tier_base_path="s3://sagemaker-checkpoints-535002850097-us-west-1/checkpoints"
-        s3_tier_base_path="s3://sagemaker-checkpoints-842413447717-us-east-2/checkpoints"
+        s3_tier_base_path=s3_tier_base_path
     )
 
     if save_s3:
@@ -58,11 +77,15 @@ def get_sm_checkpoint_config(save_s3=False):
 
 
 # for MTC
-def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub_dir, save_in_memory, save_s3, training_step):
+def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub_dir, save_in_memory, save_s3, training_step, s3_tier_base_path=None, mtc_namespace=None):
 
     torch.cuda.empty_cache()
 
-    sm_checkpoint_config = get_sm_checkpoint_config(save_s3=save_s3)
+    sm_checkpoint_config = get_sm_checkpoint_config(
+        save_s3=save_s3, 
+        s3_tier_base_path=s3_tier_base_path, 
+        mtc_namespace=mtc_namespace
+    )
 
     # save_dir = os.path.join(root_dir, sub_dir)
     # if dist.get_rank() == 0:
@@ -102,7 +125,7 @@ def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub
         Globals.mtc_future = dist_cp.async_save(state_dict=state_dict, storage_writer=sm_storage_writer)
 
 
-def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type, device):
+def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type, device, s3_tier_base_path=None, mtc_namespace=None):
 
     print("Returning null checkpoint for testing", flush=True)
     return(
@@ -113,7 +136,11 @@ def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type,
         0,
     )
 
-    sm_checkpoint_config = get_sm_checkpoint_config(save_s3=True)
+    sm_checkpoint_config = get_sm_checkpoint_config(
+        save_s3=True, 
+        s3_tier_base_path=s3_tier_base_path, 
+        mtc_namespace=mtc_namespace
+    )
 
     with FSDP.state_dict_type(
             model,

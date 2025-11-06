@@ -27,6 +27,29 @@
   - `train_utils.py`: Training utilities and helpers
   - `concat_dataset.py`: Dataset concatenation utilities
 
+## Documentation Standards
+
+### Documentation Organization
+- All project documentation should be placed in the `doc/` directory
+- Use clear, descriptive filenames with `.md` extension
+- Include a `doc/README.md` as the documentation index
+- Create guides for major features and configuration changes
+- Update the documentation index when adding new guides
+
+### Documentation Types
+- **User Guides**: Step-by-step instructions for common tasks
+- **Configuration Guides**: Parameter explanations and examples
+- **Testing Guides**: Framework usage and validation procedures
+- **Integration Guides**: Platform-specific deployment instructions
+- **Reference Guides**: Command and API references
+
+### Documentation Standards
+- Use clear, concise language appropriate for developers
+- Include practical examples and code snippets
+- Provide both template and concrete usage examples
+- Document migration paths for breaking changes
+- Include troubleshooting sections for complex features
+
 ## Coding Standards
 
 ### Python Code Style

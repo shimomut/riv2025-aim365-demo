@@ -3,13 +3,13 @@ kind: HyperPodPyTorchJob
 metadata:
   name: llama3-1-8b-fsdp-hpto
 spec:
-  nprocPerNode: "$GPU_PER_NODE"
+  nprocPerNode: "8"
   runPolicy:
-    jobMaxRetryCount: 10
+    jobMaxRetryCount: 0
     restartPolicy:
-      numRestartBeforeFullJobRestart: 3
+      numRestartBeforeFullJobRestart: 0
       evalPeriodSeconds: 21600
-      maxFullJobRestarts: 1
+      maxFullJobRestarts: 0
     cleanPodPolicy: All
     logMonitoringConfiguration:
       - name: JobStart
@@ -20,7 +20,7 @@ spec:
         expectedRecurringFrequencyInSeconds: 600
   replicaSpecs:
     - name: pods
-      replicas: $NUM_NODES
+      replicas: 4
       template:
         metadata:
           labels:
@@ -55,7 +55,7 @@ spec:
                       - key: sagemaker.amazonaws.com/compute-type
                         operator: In
                         values:
-                          - '${INSTANCE_TYPE}'
+                          - 'ml.p5.48xlarge'
           topologySpreadConstraints:
             - maxSkew: 1
               topologyKey: kubernetes.io/hostname
@@ -68,15 +68,15 @@ spec:
 
           containers:
             - name: pytorch
-              image: ${IMAGE_URI}
+              image: 535002850097.dkr.ecr.us-west-1.amazonaws.com/riv2025-aim365-demo:pytorch2.5.1
               imagePullPolicy: Always
               resources:
                 requests:
-                  nvidia.com/gpu: $GPU_PER_NODE
-                  vpc.amazonaws.com/efa: $EFA_PER_NODE
+                  nvidia.com/gpu: 8
+                  vpc.amazonaws.com/efa: 32
                 limits:
-                  nvidia.com/gpu: $GPU_PER_NODE
-                  vpc.amazonaws.com/efa: $EFA_PER_NODE
+                  nvidia.com/gpu: 8
+                  vpc.amazonaws.com/efa: 32
               env:
                 - name: LOGLEVEL
                   value: INFO
@@ -106,14 +106,15 @@ spec:
                   value: ^lo
                 - name: TORCH_NCCL_ASYNC_ERROR_HANDLING
                   value: '1'
-                - name: HF_TOKEN
-                  value: '${HF_TOKEN}'
+                # HF_TOKEN not needed for public datasets
+                # - name: HF_TOKEN
+                #   value: 'your_token_here'
               command:
                 - hyperpodrun
                 - '--tee=3'
                 - '--log_dir=/tmp/hyperpod'
-                - '--nproc_per_node=$GPU_PER_NODE'
-                - '--nnodes=$NUM_NODES'
+                - '--nproc_per_node=8'
+                - '--nnodes=4'
                 - /fsdp/train.py
                 - '--max_context_width=4096'
                 - '--num_key_value_heads=32'
@@ -127,6 +128,7 @@ spec:
                 - '--validation_freq=25'
                 - '--max_steps=1000'
                 - '--checkpoint_dir=/fsx/checkpoints'
+                # Use local dataset instead of streaming
                 - '--local_dataset_path=/fsx/c4_subset'
                 - '--resume_from_checkpoint=/fsx/checkpoints'
                 - '--train_batch_size=1'
@@ -134,8 +136,8 @@ spec:
                 - '--sharding_strategy=full'
                 - '--offload_activations=1'
                 # MTC (Managed Tiered Checkpointing) configuration
-                - '--s3_tier_base_path=${S3_TIER_BASE_PATH}'
-                - '--mtc_namespace=${MTC_NAMESPACE}'
+                - '--s3_tier_base_path=s3://sagemaker-checkpoints-535002850097-us-west-1/checkpoints'
+                - '--mtc_namespace=llama3-1-8b-fsdp-hpto-p5'
               volumeMounts:
                 - name: shmem
                   mountPath: /dev/shm

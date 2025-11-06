@@ -174,6 +174,22 @@ def parse_args():  # pylint: disable=too-many-statements
                         default=3,
                         help="times of iterating over the training dataset")
 
+    # MTC (Managed Tiered Checkpointing) configuration
+    mtc_grp = parser.add_argument_group(
+        title="mtc", description="arguments for Managed Tiered Checkpointing")
+    mtc_grp.add_argument(
+        "--s3_tier_base_path",
+        type=str,
+        default=None,
+        help="S3 base path for MTC checkpoints (e.g., s3://bucket-name/checkpoints)",
+    )
+    mtc_grp.add_argument(
+        "--mtc_namespace",
+        type=str,
+        default="default-training-job",
+        help="Unique namespace/ID for MTC training job (alphanumeric, hyphens, underscores only)",
+    )
+
     parser.add_argument(
         "--checkpoint_freq",
         type=int,

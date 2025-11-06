@@ -47,6 +47,7 @@ doc/                     # Comprehensive documentation
 ├── README.md           # Documentation index
 ├── TESTING_GUIDE.md    # Testing procedures
 ├── TESTING_SUMMARY.md  # Framework overview
+├── MTC_PARAMETERIZATION_GUIDE.md # MTC configuration guide
 └── [other guides...]   # Additional documentation
 
 tmp/                     # Temporary and historical documentation

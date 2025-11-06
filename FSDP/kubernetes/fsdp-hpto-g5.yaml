@@ -135,6 +135,9 @@ spec:
                 - '--val_batch_size=1'
                 - '--sharding_strategy=full'
                 - '--offload_activations=1'
+                # MTC (Managed Tiered Checkpointing) configuration
+                - '--s3_tier_base_path=s3://sagemaker-checkpoints-842413447717-us-east-2/checkpoints'
+                - '--mtc_namespace=llama3-1-8b-fsdp-hpto-g5'
               volumeMounts:
                 - name: shmem
                   mountPath: /dev/shm
