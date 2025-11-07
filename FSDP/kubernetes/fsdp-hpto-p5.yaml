@@ -5,11 +5,11 @@ metadata:
 spec:
   nprocPerNode: "8"
   runPolicy:
-    jobMaxRetryCount: 0
+    jobMaxRetryCount: 10
     restartPolicy:
-      numRestartBeforeFullJobRestart: 0
+      numRestartBeforeFullJobRestart: 3
       evalPeriodSeconds: 21600
-      maxFullJobRestarts: 0
+      maxFullJobRestarts: 1
     cleanPodPolicy: All
     logMonitoringConfiguration:
       - name: JobStart
