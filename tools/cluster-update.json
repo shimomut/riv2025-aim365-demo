@@ -28,21 +28,6 @@
             }
         }
     ],
-    "VpcConfig": {
-        "SecurityGroupIds": [
-            "sg-0817d383d7276a600"
-        ],
-        "Subnets": [
-            "subnet-0e2fb69e9c8391fb6",
-            "subnet-0b0e3bc93a6867dac",
-            "subnet-09167f540bfb1c621"
-        ]
-    },
-    "Orchestrator": {
-        "Eks": {
-            "ClusterArn": "arn:aws:eks:us-east-2:842413447717:cluster/sagemaker-k8-demo-1-27d77433-eks"
-        }
-    },
     
     "NodeRecovery": "Automatic",
 
