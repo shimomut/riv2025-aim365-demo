@@ -189,6 +189,18 @@ def parse_args():  # pylint: disable=too-many-statements
         default="default-training-job",
         help="Unique namespace/ID for MTC training job (alphanumeric, hyphens, underscores only)",
     )
+    mtc_grp.add_argument(
+        "--in_memory_checkpointing_freq",
+        type=int,
+        default=10,
+        help="Frequency (in steps) for in-memory checkpoints when using MTC",
+    )
+    mtc_grp.add_argument(
+        "--s3_checkpointing_freq",
+        type=int,
+        default=20,
+        help="Frequency (in steps) for S3 checkpoints when using MTC",
+    )
 
     parser.add_argument(
         "--checkpoint_freq",

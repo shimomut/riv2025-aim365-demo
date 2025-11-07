@@ -46,8 +46,6 @@ import sys
 
 # for MTC
 use_mtc = True
-in_memory_checkpointing_freq = 10
-s3_checkpointing_freq = 20
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout)
@@ -138,8 +136,8 @@ def train(
             # for MTC
             if use_mtc:
                 
-                save_in_memory = total_steps % in_memory_checkpointing_freq == 0
-                save_s3 = total_steps % s3_checkpointing_freq == 0
+                save_in_memory = total_steps % args.in_memory_checkpointing_freq == 0
+                save_s3 = total_steps % args.s3_checkpointing_freq == 0
 
                 if save_in_memory or save_s3:
 

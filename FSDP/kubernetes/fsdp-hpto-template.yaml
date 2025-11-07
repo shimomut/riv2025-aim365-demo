@@ -136,6 +136,8 @@ spec:
                 # MTC (Managed Tiered Checkpointing) configuration
                 - '--s3_tier_base_path=${S3_TIER_BASE_PATH}'
                 - '--mtc_namespace=${MTC_NAMESPACE}'
+                - '--in_memory_checkpointing_freq=10'
+                - '--s3_checkpointing_freq=20'
               volumeMounts:
                 - name: shmem
                   mountPath: /dev/shm
