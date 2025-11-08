@@ -20,8 +20,8 @@ build-x:
 push:
 	bash tools/push.sh
 
-run: run-g5
-stop: stop-g5
+run: run-p5
+stop: stop-p5
 
 run-g5:
 	kubectl apply -f FSDP/kubernetes/fsdp-hpto-g5.yaml
