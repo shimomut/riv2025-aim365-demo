@@ -45,7 +45,7 @@ import sys
 
 
 # for MTC
-use_mtc = True
+use_mtc = False
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout)

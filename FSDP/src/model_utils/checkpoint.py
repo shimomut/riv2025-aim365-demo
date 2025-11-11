@@ -127,15 +127,6 @@ def save_checkpoint_mtc(model, optimizer, scheduler, user_content, root_dir, sub
 
 def load_checkpoint_mtc(model, optimizer, scheduler, checkpoint_dir, model_type, device, s3_tier_base_path=None, mtc_namespace=None):
 
-    print("Returning null checkpoint for testing", flush=True)
-    return(
-        model,
-        optimizer,
-        scheduler,
-        0,
-        0,
-    )
-
     sm_checkpoint_config = get_sm_checkpoint_config(
         save_s3=True, 
         s3_tier_base_path=s3_tier_base_path, 
